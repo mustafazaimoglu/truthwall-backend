@@ -22,4 +22,9 @@ public class Dislike {
 
     @Column(name = "user_id")
     private int userId;
+
+    public Dislike(int postId, int userId) {
+        this.postId = postId;
+        this.userId = userId;
+    }
 }
