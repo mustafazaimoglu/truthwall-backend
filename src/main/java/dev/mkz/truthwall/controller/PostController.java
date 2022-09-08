@@ -38,6 +38,11 @@ public class PostController {
         return this.postService.getAllDto();
     }
 
+    @GetMapping("getAllDtoUserMode")
+    public DataResult<List<PostResponseDTO>> getAllDtoUserMode(@RequestParam int userId) {
+        return this.postService.getAllDtoUserMode(userId);
+    }
+
     @GetMapping("getPostsByUserId")
     public DataResult<List<PostResponseDTO>> getPostsByUserId(@RequestParam int userId) {
         return this.postService.getPostsByUserId(userId);

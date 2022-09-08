@@ -17,5 +17,7 @@ public interface PostService {
 
     DataResult<List<PostResponseDTO>> getAllDto();
 
+    DataResult<List<PostResponseDTO>> getAllDtoUserMode(int userId);
+
     DataResult<List<PostResponseDTO>> getPostsByUserId(int userId);
 }

@@ -4,6 +4,8 @@ import dev.mkz.truthwall.dto.PostResponseDTO;
 import dev.mkz.truthwall.dto.PostTemporaryDTO;
 import dev.mkz.truthwall.model.Post;
 import dev.mkz.truthwall.model.User;
+import dev.mkz.truthwall.repository.DislikeRepository;
+import dev.mkz.truthwall.repository.LikeRepository;
 import dev.mkz.truthwall.repository.PostRepository;
 import dev.mkz.truthwall.repository.UserRepository;
 import dev.mkz.truthwall.service.abstracts.PostService;
@@ -24,10 +26,16 @@ public class PostManager implements PostService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private LikeRepository likeRepository;
+
+    @Autowired
+    private DislikeRepository dislikeRepository;
+
     @Override
     public Result save(PostTemporaryDTO postTemporaryDTO) {
         User user = userRepository.getByUserId(postTemporaryDTO.getUserId());
-        Post post = new Post(postTemporaryDTO,user);
+        Post post = new Post(postTemporaryDTO, user);
         this.postRepository.save(post);
         return new SuccessResult("Post saved successfully!");
     }
@@ -45,11 +53,45 @@ public class PostManager implements PostService {
 
     @Override
     public DataResult<List<PostResponseDTO>> getAllDto() {
-        return new SuccessDataResult<>(this.postRepository.getAllDto());
+        List<PostResponseDTO> result = this.postRepository.getAllDto();
+        for (PostResponseDTO p : result) {
+            p.setLikeCount(likeRepository.getByPostId(p.getPostId()).size());
+            p.setDislikeCount(dislikeRepository.getByPostId(p.getPostId()).size());
+        }
+
+        return new SuccessDataResult<>(result);
+    }
+
+    @Override
+    public DataResult<List<PostResponseDTO>> getAllDtoUserMode(int userId) {
+        List<PostResponseDTO> result = this.postRepository.getAllDto();
+        for (PostResponseDTO p : result) {
+            p.setLikeCount(likeRepository.getByPostId(p.getPostId()).size());
+            p.setDislikeCount(dislikeRepository.getByPostId(p.getPostId()).size());
+
+            int interactionType = 0;
+            if (likeRepository.existsByPostIdAndUserId(p.getPostId(), userId)) {
+                interactionType = 1;
+            }
+
+            if (dislikeRepository.existsByPostIdAndUserId(p.getPostId(), userId)) {
+                interactionType = -1;
+            }
+
+            p.setUserInteraction(interactionType);
+        }
+
+        return new SuccessDataResult<>(result);
     }
 
     @Override
     public DataResult<List<PostResponseDTO>> getPostsByUserId(int userId) {
-       return new SuccessDataResult<>(this.postRepository.getByUserId(userId));
+        List<PostResponseDTO> result = this.postRepository.getByUserId(userId);
+        for (PostResponseDTO p : result) {
+            p.setLikeCount(likeRepository.getByPostId(p.getPostId()).size());
+            p.setDislikeCount(dislikeRepository.getByPostId(p.getPostId()).size());
+        }
+
+        return new SuccessDataResult<>(result);
     }
 }

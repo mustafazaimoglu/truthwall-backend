@@ -63,4 +63,9 @@ public class LikeDislikeController {
             return new ErrorResult("Internal Server Error");
         }
     }
+
+    @GetMapping("getAllLikes")
+    public Result getAllLikes() {
+        return likeService.getAll();
+    }
 }
