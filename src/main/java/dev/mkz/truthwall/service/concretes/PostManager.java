@@ -90,6 +90,17 @@ public class PostManager implements PostService {
         for (PostResponseDTO p : result) {
             p.setLikeCount(likeRepository.getByPostId(p.getPostId()).size());
             p.setDislikeCount(dislikeRepository.getByPostId(p.getPostId()).size());
+
+            int interactionType = 0;
+            if (likeRepository.existsByPostIdAndUserId(p.getPostId(), userId)) {
+                interactionType = 1;
+            }
+
+            if (dislikeRepository.existsByPostIdAndUserId(p.getPostId(), userId)) {
+                interactionType = -1;
+            }
+
+            p.setUserInteraction(interactionType);
         }
 
         return new SuccessDataResult<>(result);
